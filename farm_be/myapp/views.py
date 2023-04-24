@@ -28,6 +28,7 @@ from .serializers import TempratureSerializer, SoilMoisureSerializer, LightInten
 from .serializers import DeviceSerializer, ScheduleSerializer
 from .serializers import NotificationSerializer, ThresholdSerializer
 from .serializers import HistoryTempratureSerializer, HistorySoilSerializer, HistoryLightSerializer, HistoryAirHumiditySerializer
+from .serializers import LastestInfoSerializer
 
 
 
@@ -82,6 +83,32 @@ class HistoryLightViewSet(viewsets.ModelViewSet):
 class HistoryAirHumidityViewSet(viewsets.ModelViewSet):
     queryset = HistoryAirHumidity.objects.all()
     serializer_class = HistoryAirHumiditySerializer
+
+class LastestInfoViewSet(viewsets.ModelViewSet):
+    queryset = HistoryTemprature.objects.last(), HistorySoil.objects.last(), HistoryLight.objects.last(), HistoryAirHumidity.objects.last()
+    serializer_class = LastestInfoSerializer
+
+class ControlDeviceViewSet(viewsets.ModelViewSet):
+    queryset = Device.objects.filter(name='device 1')
+    serializer_class = DeviceSerializer
+    
+@api_view(['GET', 'PUT', 'POST'])
+def controlDevice(request):
+    if request.method == 'PUT' or request.method == 'POST':
+        data = JSONParser().parse(request)
+        device = Device.objects.filter(name=data['name'])
+        serializer = DeviceSerializer(data=data)
+        # if serializer.is_valid():
+        if device[0].state == 0:
+            device.update(state=1)
+        else:
+            device.update(state=0)
+        return JsonResponse(data, status=status.HTTP_200_OK)
+        # return JsonResponse(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+    elif request.method == 'GET':
+        users = Device.objects.all()
+        serializer = DeviceSerializer(users, many=True)
+        return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
 def getUser(request):

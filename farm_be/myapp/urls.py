@@ -8,8 +8,9 @@ from .views import TempratureViewSet, SoilMoisureViewSet, LightIntensitiveViewSe
 from .views import DeviceViewSet, ScheduleViewSet
 from .views import NotificationViewSet, ThresholdViewSet
 from .views import HistoryTempratureViewSet, HistorySoilViewSet, HistoryLightViewSet, HistoryAirHumidityViewSet
+from .views import LastestInfoViewSet, ControlDeviceViewSet
 
-from .views import getUser
+from .views import getUser, controlDevice
 
 routers = DefaultRouter()
 routers.register('users', UsersViewSet, basename='users')
@@ -25,10 +26,13 @@ routers.register('history_temprature', HistoryTempratureViewSet, basename='histo
 routers.register('history_soil', HistorySoilViewSet, basename='history_soil')
 routers.register('history_light', HistoryLightViewSet, basename='history_light')
 routers.register('history_air_humidity', HistoryAirHumidityViewSet, basename='history_air_humidity')
+routers.register('last_info', LastestInfoViewSet, basename='last_info')
+# routers.register('control_device', ControlDeviceViewSet, basename='control_device')
 
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
     path('', include(routers.urls)),
     path('get_user/', getUser),
+    path('control_device/', controlDevice),
 ]
