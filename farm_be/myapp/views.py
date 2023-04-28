@@ -91,6 +91,30 @@ class LastestInfoViewSet(viewsets.ModelViewSet):
 class ControlDeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.filter(name='device 1')
     serializer_class = DeviceSerializer
+
+# @api_view(['GET'])
+# def 
+
+@api_view(['GET'])
+def getLastdata(request):
+    data = []
+    temp = HistoryTemprature.objects.all()
+    serializer = HistoryTempratureSerializer(temp, many=True)
+    data += [serializer.data[-1]]
+
+    soil = HistorySoil.objects.all()
+    serializer = HistorySoilSerializer(soil, many=True)
+    data += [serializer.data[-1]]
+
+    light = HistoryLight.objects.all()
+    serializer = HistoryLightSerializer(light, many=True)
+    data += [serializer.data[-1]]
+
+    air = HistoryAirHumidity.objects.all()
+    serializer = HistoryAirHumiditySerializer(air, many=True)
+    data += [serializer.data[-1]]
+
+    return Response(data)
     
 @api_view(['GET', 'PUT', 'POST'])
 def controlDevice(request):
@@ -103,6 +127,7 @@ def controlDevice(request):
             device.update(state=1)
         else:
             device.update(state=0)
+        print(device[0])
         return JsonResponse(data, status=status.HTTP_200_OK)
         # return JsonResponse(serializer.errors, status=status.HTTP_404_NOT_FOUND)
     elif request.method == 'GET':
