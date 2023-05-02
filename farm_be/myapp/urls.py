@@ -10,7 +10,7 @@ from .views import NotificationViewSet, ThresholdViewSet
 from .views import HistoryTempratureViewSet, HistorySoilViewSet, HistoryLightViewSet, HistoryAirHumidityViewSet
 from .views import LastestInfoViewSet, ControlDeviceViewSet
 
-from .views import getUser, controlDevice, getLastdata
+from .views import getUser, controlDevice, getLastdata, getTodayData, autoDevice
 
 routers = DefaultRouter()
 routers.register('users', UsersViewSet, basename='users')
@@ -36,4 +36,6 @@ urlpatterns = [
     path('get_user/', getUser),
     path('control_device/', controlDevice),
     path('last_data/', getLastdata),
+    path('today_data/', getTodayData),
+    path('auto_device/', autoDevice),
 ]

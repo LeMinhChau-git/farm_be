@@ -86,6 +86,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'farm_db',
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            'host': 'mongodb+srv://farm_db:farm_db@cluster0.2qh0jmf.mongodb.net/test'
+        }
     }
 }
 

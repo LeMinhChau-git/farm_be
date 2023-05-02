@@ -85,35 +85,34 @@ class HistoryAirHumidityViewSet(viewsets.ModelViewSet):
     serializer_class = HistoryAirHumiditySerializer
 
 class LastestInfoViewSet(viewsets.ModelViewSet):
-    queryset = HistoryTemprature.objects.last(), HistorySoil.objects.last(), HistoryLight.objects.last(), HistoryAirHumidity.objects.last()
+    set1 = HistoryTemprature.objects.all()
+    set2 = HistorySoil.objects.all()
+    set3 = HistoryLight.objects.all()
+    set4 = HistoryAirHumidity.objects.all()
+    queryset = set1, set2, set3, set4
     serializer_class = LastestInfoSerializer
 
 class ControlDeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.filter(name='device 1')
     serializer_class = DeviceSerializer
 
-# @api_view(['GET'])
-# def 
 
 @api_view(['GET'])
 def getLastdata(request):
     data = []
-    temp = HistoryTemprature.objects.all()
-    serializer = HistoryTempratureSerializer(temp, many=True)
-    data += [serializer.data[-1]]
+    temp = HistoryTemprature.objects.latest('time')
+    temp_serializer = HistoryTempratureSerializer(temp, many=False)
 
-    soil = HistorySoil.objects.all()
-    serializer = HistorySoilSerializer(soil, many=True)
-    data += [serializer.data[-1]]
+    soil = HistorySoil.objects.latest('time')
+    soil_serializer = HistorySoilSerializer(soil, many=False)
 
-    light = HistoryLight.objects.all()
-    serializer = HistoryLightSerializer(light, many=True)
-    data += [serializer.data[-1]]
+    light = HistoryLight.objects.latest('time')
+    light_serializer = HistoryLightSerializer(light, many=False)
 
-    air = HistoryAirHumidity.objects.all()
-    serializer = HistoryAirHumiditySerializer(air, many=True)
-    data += [serializer.data[-1]]
+    air = HistoryAirHumidity.objects.latest('time')
+    air_serializer = HistoryAirHumiditySerializer(air, many=False)
 
+    data = {'air': air_serializer.data, 'temprature': temp_serializer.data, 'soil': soil_serializer.data, 'light': light_serializer.data}
     return Response(data)
     
 @api_view(['GET', 'PUT', 'POST'])
@@ -152,3 +151,122 @@ def getUser(request):
         users = Users.objects.all()
         serializer = UsersSerializer(users, many=True)
         return Response(serializer.data)
+
+from datetime import datetime, date
+
+@api_view(['GET'])
+def getTodayData(request):
+    today = datetime.now()
+    
+    airs = HistoryAirHumidity.objects.all()
+    air = filter(lambda y: today.date() == y.time.date(), airs)
+    air_serializer = HistoryAirHumiditySerializer(air, many=True)
+    
+    temps = HistoryTemprature.objects.all()
+    temp = filter(lambda y: today.date() == y.time.date(), temps)
+    temp_serializer = HistoryTempratureSerializer(temp, many=True)
+    
+    soils = HistorySoil.objects.all()
+    soil = filter(lambda y: today.date() == y.time.date(), soils)
+    soil_serializer = HistorySoilSerializer(soil, many=True)
+    
+    lights = HistoryLight.objects.all()
+    light = filter(lambda y: today.date() == y.time.date(), lights)
+    light_serializer = HistoryLightSerializer(light, many=True)
+    
+    data = {'air': air_serializer.data, 'temprature': temp_serializer.data, 'soil': soil_serializer.data, 'light': light_serializer.data}
+    
+    return Response(data)
+
+import time, threading
+def autoUpdate(i):
+    starttime = time.time()
+    while i:
+        # Remove the Time taken by code to execute
+        temp = HistoryTemprature.objects.latest('time')
+        soil = HistorySoil.objects.latest('time')
+        light = HistoryLight.objects.latest('time')
+        air = HistoryAirHumidity.objects.latest('time')
+        
+        # no ok, need water
+        if soil.value < 70 or air.value < 70:
+            device = Device.objects.filter(name='water')
+            # serializer = DeviceSerializer(data=data)
+            if device and device[0].state == 0:
+                device.update(state=1)
+            # elif device and device[0].state == 1:
+            #     break
+        # ok, no more water
+        else:
+            device = Device.objects.filter(name='water')
+            if device and device[0].state == 1:
+                device[0].state = 0
+            # elif device and device[0].state == 0:
+            #     break
+        print(device[0].state)
+            
+        time.sleep(1.0 - ((time.time() - starttime) % 1.0))
+
+class StoppableThread(threading.Thread):
+    """Thread class with a stop() method. The thread itself has to check
+    regularly for the stopped() condition."""
+
+    def __init__(self,  *args, **kwargs):
+        super(StoppableThread, self).__init__(*args, **kwargs)
+        self._stop_event = threading.Event()
+        self.isloop = False
+    
+    def loop(self):
+        starttime = time.time()
+        while self.isloop:
+            # Remove the Time taken by code to execute
+            temp = HistoryTemprature.objects.latest('time')
+            soil = HistorySoil.objects.latest('time')
+            light = HistoryLight.objects.latest('time')
+            air = HistoryAirHumidity.objects.latest('time')
+            
+            # no ok, need water
+            if soil.value < 70 or air.value < 70:
+                device = Device.objects.filter(name='water')
+                # serializer = DeviceSerializer(data=data)
+                if device and device[0].state == 0:
+                    device.update(state=1)
+                # elif device and device[0].state == 1:
+                #     break
+            # ok, no more water
+            else:
+                device = Device.objects.filter(name='water')
+                if device and device[0].state == 1:
+                    device[0].state = 0
+                # elif device and device[0].state == 0:
+                #     break
+            print(device[0].name, device[0].state)
+                
+            time.sleep(1.0 - ((time.time() - starttime) % 1.0))
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
+
+
+thread = StoppableThread()
+@api_view(['GET', 'POST'])
+def autoDevice(request):
+    # thread.stop_event.set()
+    # thread = StoppableThread(target=autoUpdate)
+    # thread.name = 'thread'
+    if request.method == 'GET':
+        # thread.loop(False)
+        # for threads in thread:
+        # thread.loop(False)
+        thread.isloop = False
+        thread.loop()
+        return Response('off')
+    elif request.method == 'POST':
+        # thread = StoppableThread(target=autoUpdate(True))
+        # thread.start()
+        thread.isloop = True
+        thread.loop()
+        return Response('on')
