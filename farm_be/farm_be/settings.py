@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-v#0(l&yekiqp0w1n6ylqia6s#ce@@p50w$&gq7j&ka%nfbem6@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.229.93.56']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -86,6 +86,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'farm_db',
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            'host': 'mongodb+srv://farm_db:farm_db@cluster0.2qh0jmf.mongodb.net/test'
+        }
     }
 }
 

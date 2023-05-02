@@ -9,7 +9,7 @@ class Init(models.Model):
         return self.email
 
 class Users(models.Model):
-    username = models.CharField(max_length=30)
+    username = models.CharField(max_length=30, primary_key=True)
     password = models.CharField(max_length=30)
     role = models.CharField(max_length=30, blank=True)
     
@@ -53,7 +53,7 @@ class AirHumidity(models.Model):
         return self.current
 
 class Device(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, primary_key=True)
     state = models.IntegerField()
     description = models.TextField()
     
@@ -71,7 +71,7 @@ class Schedule(models.Model):
         return self.device
 
 class Notification(models.Model):
-    time = models.DateTimeField()
+    time = models.DateTimeField(primary_key=True)
     content = models.TextField()
     state = models.IntegerField()
     
@@ -79,7 +79,7 @@ class Notification(models.Model):
         return self.time
 
 class Threshold(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, primary_key=True)
     value = models.IntegerField()
     description = models.TextField()
     
@@ -87,28 +87,35 @@ class Threshold(models.Model):
         return self.name
 
 class HistoryTemprature(models.Model):
-    time = models.DateTimeField()
+    time = models.DateTimeField(primary_key=True)
     value = models.IntegerField()
     
     def __str__(self):
         return self.time
 
 class HistorySoil(models.Model):
-    time = models.DateTimeField()
+    time = models.DateTimeField(primary_key=True)
     value = models.IntegerField()
     
     def __str__(self):
         return self.time
 
 class HistoryLight(models.Model):
-    time = models.DateTimeField()
+    time = models.DateTimeField(primary_key=True)
     value = models.IntegerField()
     
     def __str__(self):
         return self.time
 
 class HistoryAirHumidity(models.Model):
-    time = models.DateTimeField()
+    time = models.DateTimeField(primary_key=True)
+    value = models.IntegerField()
+    
+    def __str__(self):
+        return self.time
+
+class LastestInfo(models.Model):
+    time = models.DateTimeField(primary_key=True)
     value = models.IntegerField()
     
     def __str__(self):
