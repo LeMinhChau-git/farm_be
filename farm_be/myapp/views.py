@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 
-
 from rest_framework.decorators import APIView
 
+import math
 
 from rest_framework import generics
 from rest_framework import mixins
@@ -159,22 +159,38 @@ def getTodayData(request):
     today = datetime.now()
     
     airs = HistoryAirHumidity.objects.all()
-    air = filter(lambda y: today.date() == y.time.date(), airs)
-    air_serializer = HistoryAirHumiditySerializer(air, many=True)
+    ret_air = filter(lambda y: today.date() == y.time.date(), airs)
+    air = filter(lambda y: y.time.hour % 2 == 0, ret_air)
+    air_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for t in air:
+        air_data[math.floor(t.time.hour / 2)] = t.value
+    # air_serializer = HistoryAirHumiditySerializer(air, many=True)
     
     temps = HistoryTemprature.objects.all()
-    temp = filter(lambda y: today.date() == y.time.date(), temps)
-    temp_serializer = HistoryTempratureSerializer(temp, many=True)
+    ret_temp = filter(lambda y: today.date() == y.time.date(), temps)
+    temp = filter(lambda y: y.time.hour % 2 == 0, ret_temp)
+    temp_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for t in temp:
+        temp_data[math.floor(t.time.hour / 2)] = t.value
+    # temp_serializer = HistoryTempratureSerializer(temp, many=True)
     
     soils = HistorySoil.objects.all()
-    soil = filter(lambda y: today.date() == y.time.date(), soils)
-    soil_serializer = HistorySoilSerializer(soil, many=True)
+    ret_soil = filter(lambda y: today.date() == y.time.date(), soils)
+    soil = filter(lambda y: y.time.hour % 2 == 0, ret_soil)
+    soil_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for t in soil:
+        soil_data[math.floor(t.time.hour / 2)] = t.value
+    # soil_serializer = HistorySoilSerializer(soil, many=True)
     
     lights = HistoryLight.objects.all()
-    light = filter(lambda y: today.date() == y.time.date(), lights)
-    light_serializer = HistoryLightSerializer(light, many=True)
+    ret_light = filter(lambda y: today.date() == y.time.date(), lights)
+    light = filter(lambda y: y.time.hour % 2 == 0, ret_light)
+    light_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for t in light:
+        light_data[math.floor(t.time.hour / 2)] = t.value
+    # light_serializer = HistoryLightSerializer(light, many=True)
     
-    data = {'air': air_serializer.data, 'temprature': temp_serializer.data, 'soil': soil_serializer.data, 'light': light_serializer.data}
+    data = {'air': air_data, 'temprature': temp_data, 'soil': soil_data, 'light': light_data}
     
     return Response(data)
 
