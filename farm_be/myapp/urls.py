@@ -35,7 +35,7 @@ urlpatterns = [
     path('', include(routers.urls)),
     path('get_user/', getUser),
     path('control_device/', controlDevice),
+    path('auto_device/', autoDevice),
     path('last_data/', getLastdata),
     path('today_data/', getTodayData),
-    path('auto_device/', autoDevice),
 ]

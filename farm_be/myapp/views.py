@@ -160,34 +160,58 @@ def getTodayData(request):
     
     airs = HistoryAirHumidity.objects.all()
     ret_air = filter(lambda y: today.date() == y.time.date(), airs)
-    air = filter(lambda y: y.time.hour % 2 == 0, ret_air)
+    # air = filter(lambda y: y.time.hour % 2 == 0, ret_air)
     air_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    for t in air:
-        air_data[math.floor(t.time.hour / 2)] = t.value
+    for t in ret_air:
+        is_call = 0
+        index = math.floor(t.time.hour / 2)
+        if air_data[index] != 0:
+            is_call = 1
+        air_data[index] += t.value
+        if is_call:
+            air_data[index] /= 2
     # air_serializer = HistoryAirHumiditySerializer(air, many=True)
     
     temps = HistoryTemprature.objects.all()
     ret_temp = filter(lambda y: today.date() == y.time.date(), temps)
-    temp = filter(lambda y: y.time.hour % 2 == 0, ret_temp)
+    # temp = filter(lambda y: y.time.hour % 2 == 0, ret_temp)
     temp_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    for t in temp:
-        temp_data[math.floor(t.time.hour / 2)] = t.value
+    for t in ret_temp:
+        is_call = 0
+        index = math.floor(t.time.hour / 2)
+        if temp_data[index] != 0:
+            is_call = 1
+        temp_data[index] += t.value
+        if is_call:
+            temp_data[index] /= 2
     # temp_serializer = HistoryTempratureSerializer(temp, many=True)
     
     soils = HistorySoil.objects.all()
     ret_soil = filter(lambda y: today.date() == y.time.date(), soils)
-    soil = filter(lambda y: y.time.hour % 2 == 0, ret_soil)
+    # soil = filter(lambda y: y.time.hour % 2 == 0, ret_soil)
     soil_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    for t in soil:
-        soil_data[math.floor(t.time.hour / 2)] = t.value
+    for t in ret_soil:
+        is_call = 0
+        index = math.floor(t.time.hour / 2)
+        if soil_data[index] != 0:
+            is_call = 1
+        soil_data[index] += t.value
+        if is_call:
+            soil_data[index] /= 2
     # soil_serializer = HistorySoilSerializer(soil, many=True)
     
     lights = HistoryLight.objects.all()
     ret_light = filter(lambda y: today.date() == y.time.date(), lights)
-    light = filter(lambda y: y.time.hour % 2 == 0, ret_light)
+    # light = filter(lambda y: y.time.hour % 2 == 0, ret_light)
     light_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    for t in light:
-        light_data[math.floor(t.time.hour / 2)] = t.value
+    for t in ret_light:
+        is_call = 0
+        index = math.floor(t.time.hour / 2)
+        if light_data[index] != 0:
+            is_call = 1
+        light_data[index] += t.value
+        if is_call:
+            light_data[index] /= 2
     # light_serializer = HistoryLightSerializer(light, many=True)
     
     data = {'air': air_data, 'temprature': temp_data, 'soil': soil_data, 'light': light_data}
